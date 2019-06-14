@@ -21,8 +21,7 @@ class User extends Model {
 		$results = $db->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
 			":LOGIN"=>$login
 		));
-		//var_dump($results);
-		//exit;
+
 		if (count($results) === 0) {
 			throw new \Exception("Não foi possível fazer login.");
 		}
@@ -40,7 +39,7 @@ class User extends Model {
 
 		} else {
 
-			//throw new \Exception("Não foi possível fazer login.");
+			throw new \Exception("Não foi possível fazer login.");
 
 		}
 
@@ -72,7 +71,26 @@ class User extends Model {
 		}
 
 	}
+	public static function listAll()
+	{
+		$sql = new Sql();
+		return $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) ORDER BY b.desperson");
+	}
+
+	public function save(){
+		$sql = new Sql();
+		$result = $sql->query("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", 
+		array(
+			":desperson"=>$this->getdesperson(),
+			":deslogin"=>$this->getdeslogin(),
+			":despassword"=>$this->getdespassword(),
+			":desemail"=>$this->getdesemail(),
+			":nrphone"=>$this->getnrphone(),
+			":inadmin"=>$this->getinadmin()
+		));
+		$this->setData($result);
+	}
 
 }
 
- ?>
+?>

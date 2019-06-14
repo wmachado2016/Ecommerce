@@ -8,7 +8,6 @@ class Model {
 
 	public function setData($data)
 	{
-
 		foreach ($data as $key => $value)
 		{
 
