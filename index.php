@@ -3,15 +3,18 @@ session_start();
 require_once("vendor/autoload.php");
 //require_once("functions.php");
 
-use Hcode\Model\User;
+use  \Slim\Slim;
+use \Hcode\Page;
+use \Hcode\Model\User;
+use \Hcode\PageAdmin;
 
-$app = new \Slim\Slim();
+$app = new Slim();
 
 $app->config('debug', true);
 
 $app->get('/', function() {
     
-	$page = new Hcode\Page();
+	$page = new Page();
 
 	$page->setTpl("index");
 
@@ -21,7 +24,7 @@ $app->get('/admin', function() {
     
 	User::verifyLogin();
 
-	$page = new Hcode\PageAdmin();
+	$page = new PageAdmin();
 
 	$page->setTpl("index");
 
@@ -29,7 +32,7 @@ $app->get('/admin', function() {
 
 $app->get('/admin/login', function() {
     
-	$page = new Hcode\PageAdmin([
+	$page = new PageAdmin([
 		"header"=>false,
 		"footer"=>false
 	]);
@@ -60,7 +63,7 @@ $app->get('/admin/users/create', function() {
 
 	User::verifyLogin();
 
-	$page = new Hcode\PageAdmin();
+	$page = new PageAdmin();
 
 	$page->setTpl("users-create");
 });
@@ -74,7 +77,7 @@ $app->get('/admin/users/:iduser', function($iduser) {
 
 	User::verifyLogin();
 
-	$page = new Hcode\PageAdmin();
+	$page = new PageAdmin();
 
 	$page->setTpl("users-update");
 });
@@ -85,7 +88,7 @@ $app->get('/admin/users', function() {
 
 	$users = User::listAll();
 
-	$page = new Hcode\PageAdmin();
+	$page = new PageAdmin();
 
 	$page->setTpl("users", array(
 		"users"=>$users
@@ -96,23 +99,41 @@ $app->post("/admin/users/create", function () {
 
 	User::verifyLogin();
 
-   $user = new User();
+	$user = new User();
 
-	$_POST["inadmin"] = (isset($_POST["inadmin"])) ? 1 : 0;
+ 	$_POST["inadmin"] = (isset($_POST["inadmin"])) ? 1 : 0;
 
-	$_POST['despassword'] = password_hash($_POST["despassword"], PASSWORD_DEFAULT, [
+ 	$_POST['despassword'] = password_hash($_POST["despassword"], PASSWORD_DEFAULT, [
 
-		"cost"=>12
+ 		"cost"=>12
 
-	]);
+ 	]);
 
 	$user->setData($_POST);
 
-   $user->save();
-
-   header("Location: /admin/users");
+	var_dump($user);
 	exit;
+	$user->save();
 
+	header("Location: /admin/users");
+ 	exit;
+
+});
+
+//recuperar senha
+$app->get("/admin/forgot", function(){
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot");
+});
+
+$app->post("/admin/forgot", function(){
+
+	$user = User::getForgot($_POST["email"]);
 });
 
 $app->run();

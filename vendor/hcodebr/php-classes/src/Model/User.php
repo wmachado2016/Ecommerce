@@ -8,6 +8,7 @@ use \Hcode\DB\Sql;
 class User extends Model {
 
 	const SESSION = "User";
+	const SECRET = "HcodePhp7_secret";
 
 	protected $fields = [
 		"iduser", "idperson", "deslogin", "despassword", "inadmin", "dtergister"
@@ -28,11 +29,11 @@ class User extends Model {
 
 		$data = $results[0];
 
-		if (password_verify($password, $data["despassword"])) {
+		if ($data["despassword"] ==  $password ) {
 
 			$user = new User();
 			$user->setData($data);
-
+			
 			$_SESSION[User::SESSION] = $user->getValues();
 
 			return $user;
@@ -88,7 +89,40 @@ class User extends Model {
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
 		));
+		
 		$this->setData($result);
+	}
+
+	public static function getForgot($email){
+		$sql = new SQl();
+
+		$results= $sql->select("select * from tb_persons a ineer join tb_users b using(idperson) where a.desemail = :email",
+								array(
+									":email"=>$email
+								));
+
+		if(counts($results) === 0){
+			throw new \Exception("Não foi possível recuperar senha.");
+		}
+		else{
+			$data = $results[0];
+			$results2 = $sql->select("CALL sp_userspasswordsrecoveries_create(:iduser, :desip)",
+							array(
+							":iduser"=> $data["iduser"],
+							":desip"=> $_SERVER["REMOTE_ADDR"]
+						));
+			if(count($results2) === 0){
+				throw new \Exception("Não foi possível recuperar senha.");
+			}
+			else{
+				$dataRecovery = $results2[0]; 
+				
+				$code = base64_encode(openssl_encrypt($dataRecovery["idrecovery"],openssl_get_cipher_methods(),User::SECRET));
+
+				$link = "http://www.hcodecommerce.com.br/admin/forget/reset?code=$code";
+			}
+		}
+
 	}
 
 }

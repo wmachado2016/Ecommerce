@@ -8,7 +8,7 @@ class Sql {
 	const USERNAME = "root";
 	const PASSWORD = "";
 	const DBNAME = "db_ecommerce";
-
+	
 	private $conn;
 
 	public function __construct()
@@ -53,7 +53,6 @@ class Sql {
 
 	public function select($rawQuery, $params = array()):array
 	{
-
 		$stmt = $this->conn->prepare($rawQuery);
 
 		$this->setParams($stmt, $params);

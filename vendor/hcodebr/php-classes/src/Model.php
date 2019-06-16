@@ -6,15 +6,12 @@ class Model {
 
 	private $values = [];
 
-	public function setData($data)
+	public function setData($data = array())
 	{
 		foreach ($data as $key => $value)
-		{
-
-			$this->{"set".$key}($value);
-
-		}
-
+		{			
+			$this->{"set".$key}($value);			
+		}	
 	}
 
 	public function __call($name, $args)
@@ -25,7 +22,6 @@ class Model {
 
 		if (in_array($fieldName, $this->fields))
 		{
-			
 			switch ($method)
 			{
 
@@ -38,16 +34,13 @@ class Model {
 				break;
 
 			}
-
 		}
 
 	}
 
 	public function getValues()
 	{
-
 		return $this->values;
-
 	}
 
 }
